@@ -174,10 +174,17 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# For production, allow specific origins. For development, allow all.
+if os.getenv('RENDER') or os.getenv('CORS_ALLOW_ALL', 'False') == 'True':
+    # Allow all origins when deployed (you can restrict this)
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
