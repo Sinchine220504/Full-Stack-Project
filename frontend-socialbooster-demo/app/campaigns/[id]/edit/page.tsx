@@ -21,12 +21,6 @@ export default function EditCampaign() {
     end_date: ''
   })
 
-  useEffect(() => {
-    if (params.id) {
-      loadCampaign()
-    }
-  }, [params.id])
-
   const loadCampaign = async () => {
     try {
       setLoading(true)
@@ -47,6 +41,13 @@ export default function EditCampaign() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (params.id) {
+      loadCampaign()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -24,12 +24,6 @@ export default function CampaignDetail() {
   const [converting, setConverting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (params.id) {
-      loadCampaign()
-    }
-  }, [params.id])
-
   const loadCampaign = async () => {
     try {
       setLoading(true)
@@ -43,6 +37,13 @@ export default function CampaignDetail() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (params.id) {
+      loadCampaign()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id])
 
   const handleConvertBudget = async () => {
     try {
@@ -142,7 +143,7 @@ export default function CampaignDetail() {
       <div className="card">
         <h2>Currency Conversion</h2>
         <p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-          Convert this campaign's budget to different currencies using live exchange rates.
+          Convert this campaign&apos;s budget to different currencies using live exchange rates.
         </p>
         <button
           className="button"
