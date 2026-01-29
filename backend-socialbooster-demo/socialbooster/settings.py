@@ -23,7 +23,11 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Get ALLOWED_HOSTS from environment or use defaults
 allowed_hosts_str = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
-ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',')]
+ALLOWED_HOSTS = [
+    "full-stack-project-2-wp86.onrender.com",
+    "localhost",
+    "127.0.0.1"
+]
 
 # Automatically add Render domain if running on Render
 if os.getenv('RENDER'):
@@ -182,6 +186,9 @@ else:
     CORS_ALLOWED_ORIGINS = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://fullstacksinchine.netlify.app",
+        "https://*.netlify.app",
+        "https://*.vercel.app",
     ]
 
 CORS_ALLOW_CREDENTIALS = True
