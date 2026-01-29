@@ -85,7 +85,14 @@ WSGI_APPLICATION = 'socialbooster.wsgi.application'
 
 USE_SQLITE = os.getenv('USE_SQLITE', 'False') == 'True'
 
-if USE_SQLITE:
+# Check if PostgreSQL is properly configured
+DB_NAME = os.getenv('DB_NAME', '')
+DB_USER = os.getenv('DB_USER', '')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+
+# Use SQLite if explicitly set OR if PostgreSQL is not configured
+if USE_SQLITE or not (DB_NAME and DB_USER and DB_PASSWORD):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -93,16 +100,27 @@ if USE_SQLITE:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'socialbooster'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+    # Try PostgreSQL, but fallback to SQLite if psycopg2 fails
+    try:
+        import psycopg2
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': DB_NAME,
+                'USER': DB_USER,
+                'PASSWORD': DB_PASSWORD,
+                'HOST': DB_HOST,
+                'PORT': os.getenv('DB_PORT', '5432'),
+            }
         }
-    }
+    except ImportError:
+        # Fallback to SQLite if psycopg2 is not available
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 
 # Password validation
