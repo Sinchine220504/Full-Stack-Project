@@ -218,7 +218,7 @@ export default function Dashboard() {
                   <div className="metric-value">{Object.keys(stats.platform_budgets || {}).length}</div>
                   <div className="metric-trend">
                     <div className="platform-dots">
-                      {Object.keys(stats.platform_budgets).slice(0, 4).map((_, i) => (
+                      {Object.keys(stats.platform_budgets || {}).slice(0, 4).map((_, i) => (
                         <span key={i} className="platform-dot"></span>
                       ))}
                     </div>
