@@ -49,7 +49,14 @@ export default function Dashboard() {
       const response = await fetch(`${apiUrl}/api/campaigns/stats/`)
       if (!response.ok) throw new Error('Failed to fetch stats')
       const data = await response.json()
-      setStats(data)
+      
+      // Normalize data to handle empty responses
+      setStats({
+        status_counts: data.status_counts || {},
+        platform_budgets: data.platform_budgets || {},
+        total_budget: data.total_budget || 0,
+        total_campaigns: data.total_campaigns || 0
+      })
       setError(null)
     } catch (err) {
       console.error(err)
@@ -67,11 +74,11 @@ export default function Dashboard() {
     }).format(amount)
   }
 
-  const statusData = stats
+  const statusData = stats && stats.status_counts
     ? Object.entries(stats.status_counts).map(([name, value]) => ({ name, value }))
     : []
 
-  const platformData = stats
+  const platformData = stats && stats.platform_budgets
     ? Object.entries(stats.platform_budgets).map(([name, value]) => ({
         name,
         value: Number(value)
@@ -79,8 +86,8 @@ export default function Dashboard() {
     : []
 
   // Calculate percentages for visual indicators
-  const activePercentage = stats 
-    ? ((stats.status_counts.Active || 0) / stats.total_campaigns * 100).toFixed(1)
+  const activePercentage = stats && stats.total_campaigns > 0
+    ? ((stats.status_counts?.Active || 0) / stats.total_campaigns * 100).toFixed(1)
     : '0'
 
   return (
@@ -161,7 +168,7 @@ export default function Dashboard() {
                 </div>
                 <div className="metric-info">
                   <div className="metric-label">Total Campaigns</div>
-                  <div className="metric-value">{stats.total_campaigns.toLocaleString()}</div>
+                  <div className="metric-value">{(stats.total_campaigns || 0).toLocaleString()}</div>
                   <div className="metric-trend">
                     <span className="trend-indicator positive">↗</span>
                     <span className="trend-text">All time</span>
@@ -176,7 +183,7 @@ export default function Dashboard() {
                 </div>
                 <div className="metric-info">
                   <div className="metric-label">Total Budget</div>
-                  <div className="metric-value">{formatCurrency(stats.total_budget)}</div>
+                  <div className="metric-value">{formatCurrency(stats.total_budget || 0)}</div>
                   <div className="metric-trend">
                     <span className="trend-indicator positive">+12%</span>
                     <span className="trend-text">vs last month</span>
@@ -191,7 +198,7 @@ export default function Dashboard() {
                 </div>
                 <div className="metric-info">
                   <div className="metric-label">Active Campaigns</div>
-                  <div className="metric-value">{(stats.status_counts.Active || 0).toLocaleString()}</div>
+                  <div className="metric-value">{(stats.status_counts?.Active || 0).toLocaleString()}</div>
                   <div className="metric-trend">
                     <div className="progress-bar">
                       <div className="progress-fill" style={{width: `${activePercentage}%`}}></div>
@@ -208,7 +215,7 @@ export default function Dashboard() {
                 </div>
                 <div className="metric-info">
                   <div className="metric-label">Active Platforms</div>
-                  <div className="metric-value">{Object.keys(stats.platform_budgets).length}</div>
+                  <div className="metric-value">{Object.keys(stats.platform_budgets || {}).length}</div>
                   <div className="metric-trend">
                     <div className="platform-dots">
                       {Object.keys(stats.platform_budgets).slice(0, 4).map((_, i) => (
@@ -355,7 +362,7 @@ export default function Dashboard() {
                   <div className="insight-icon">🎯</div>
                   <div className="insight-text">
                     <strong>Top Performing:</strong> Your campaigns show strong engagement
-                    across {Object.keys(stats.platform_budgets).length} platforms
+                    across {Object.keys(stats.platform_budgets || {}).length} platforms
                   </div>
                 </div>
                 <div className="insight-card">
