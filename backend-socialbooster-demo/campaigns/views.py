@@ -21,25 +21,34 @@ class CampaignViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get dashboard statistics"""
-        campaigns = Campaign.objects.all()
-        
-        # Campaigns by status
-        status_counts = campaigns.values('status').annotate(count=Count('id'))
-        status_data = {item['status']: item['count'] for item in status_counts}
-        
-        # Budget by platform
-        platform_budgets = campaigns.values('platform').annotate(total_budget=Sum('budget'))
-        platform_data = {item['platform']: float(item['total_budget']) for item in platform_budgets}
-        
-        # Total budget
-        total_budget = float(campaigns.aggregate(Sum('budget'))['budget__sum'] or 0)
-        
-        return Response({
-            'status_counts': status_data,
-            'platform_budgets': platform_data,
-            'total_budget': total_budget,
-            'total_campaigns': campaigns.count()
-        })
+        try:
+            campaigns = Campaign.objects.all()
+            
+            # Campaigns by status
+            status_counts = campaigns.values('status').annotate(count=Count('id'))
+            status_data = {item['status']: item['count'] for item in status_counts}
+            
+            # Budget by platform
+            platform_budgets = campaigns.values('platform').annotate(total_budget=Sum('budget'))
+            platform_data = {item['platform']: float(item['total_budget']) for item in platform_budgets}
+            
+            # Total budget
+            total_budget = float(campaigns.aggregate(Sum('budget'))['budget__sum'] or 0)
+            
+            return Response({
+                'status_counts': status_data,
+                'platform_budgets': platform_data,
+                'total_budget': total_budget,
+                'total_campaigns': campaigns.count()
+            })
+        except Exception as e:
+            return Response({
+                'error': f'Database error: {str(e)}',
+                'status_counts': {},
+                'platform_budgets': {},
+                'total_budget': 0,
+                'total_campaigns': 0
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['get'])
     def convert_budget(self, request, pk=None):
